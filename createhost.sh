@@ -63,12 +63,9 @@ _c_fanli_conatainer(){
   docker run  --name=${host} ${options} ${volume} ${img} ${cmd}
 }
 
-# call it with
-# _c_fanli_conatainer  $name  $cmd -d
-#
+# inspired from pipework
 # usage: _set_ip_forcontainer name ip/mask gw  bridge-interface
 #    ex: _set_ip_forcontainer web1 192.168.2.22/24 192.168.2.1  docker0
-#
 _set_ip_forcontainer(){
     name=$1;ip=$2;gw=$3;
     ifname=$4;
