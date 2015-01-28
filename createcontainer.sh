@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# createhost.sh
+# createcontainer.sh
 # used to create container for docker
 # 
 
