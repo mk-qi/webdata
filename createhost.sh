@@ -121,7 +121,8 @@ _set_ip_forcontainer(){
     #[ -f /var/run/netns/$pid ] && rm -f /var/run/netns/$pid
 }
 
-
+# http://stackoverflow.com/questions/402377/using-getopts-in-\
+#    bash-shell-script-to-get-long-and-short-command-line-options
 optspec=":h-:"
 while getopts "$optspec" optchar; do
     case "${optchar}" in
