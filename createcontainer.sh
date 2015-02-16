@@ -1,177 +1,183 @@
 #!/usr/bin/env bash
 # createcontainer.sh
-# used to create container for docker
+# create container for docker
 # 
-
 # DEFAULT VALUE 
-# --globle varibles explan
-# name; container name
-# img; docker images
-# cmd;  contianer run command /bin/bash --login 
-# ip/gw;   ipaddr for to conatainer 192.168.2.33/24 and gateway
-# ifname   bridge interface name
+set -e
 
-# gen uuid for default hostname
-uuid=$(cat /dev/urandom | tr -dc 'a-zA-Z0-9' | fold -w 7 | head -n 1)
-# default container name
-name="${name:=sh-${uuid}}"
-
-# first we create an container without network
-# and store pids to pid
-# usage:  _c_fanli_conatainer $name "${options}" "${cmd}"  "${img}"
-_c_fanli_conatainer(){
+# usage:  
+#  docker command warpper
+_c_conatainer(){
     host="$1";options="$2";
-    cmd="$3";img="$4";volume=$6
-    
+    img="$3";cmd="$5";volume="$4"
+
     # DEFAULT VALUE
+    host=${host:="${name}"}
     cmd="${cmd:="/bin/bash --login"}"
     img="${img:="centos:6"}"
-    volume="${volume:=""}"
-
-    ifname="${ifname:="docker0"}"
-    
+    options=${options:="--rm -it"}
+   # make sure $name container is not running; 
     docker inspect --format="{{ .State.Running }}"\
         $host 2> /dev/null && {
         echo the name of ${host} is running, try a new one;
         exit 2;
     }
     # base dir of storage container's data
-    base="/data/containers/"
-    
-    # container home 
-    # /data/containers/web11/
-    host_dir="${base}/${host}"
-    # webdata source
-    # create host directory
-    # /data/containers/web11/weblogs,webdata
-    mkdir -p ${hostdir}/{weblogs,webdata}
-    
-    # -v "souce:dest"
-    # mount webdata volume from host
-    if [ $webdata ];then
-        webdata="/data/rodata/webdata/"
-        samba="/opt/samba"
-        volume="
-          -v ${hostdir}/weblogs:/data/weblogs/ \
-          -v ${hostdir}/webdata:/usr/local/webdata/ \
-          -v ${samba}/fanliweb:/opt/fanliweb \
-          -v ${samba}/tuangouweb:/opt/webdata \
-        "
-        img="centos:webdata"
-    fi
-  # start up container with options
-  docker run  --name=${host} ${options} ${volume} ${img} ${cmd}
-}
+    base="/data/containers"
 
-# inspired from pipework
-# usage: _set_ip_forcontainer name ip/mask gw  bridge-interface
-#    ex: _set_ip_forcontainer web1 192.168.2.22/24 192.168.2.1  docker0
+    # container's  home
+    # /data/containers/$name/
+    hostdir="${base}/${host}"
+    mkdir -p "${hostdir}"/{logs,data}
+
+    basevolume="
+          -v ${hostdir}/data:/data/ \
+          -v ${hostdir}/logs:/data/logs \
+          "
+    volume="${basevolume} ${volume}"
+    # start up container with options
+    docker run  --name=${host} -h ${host} --add-host="${host}:127.0.0.1" ${volume} ${options} ${img} ${cmd}
+
+}
+# inspired by pipework
+# create macvlan interface 
 _set_ip_forcontainer(){
-    name=$1;ip=$2;gw=$3;
-    ifname=$4;
+    ifname=$1; name=$2;ipaddr=$3
+    IPADDR=$ipaddr
     
+    [ ! -d /sys/class/net/$ifname ] && {
+        echo "${ifname}  dose not exsit";
+        exit 2;
+    }
     # get container pid
     pid=$(sudo docker inspect -f '{{.State.Pid}}' $name 2> /dev/null);
     [  $? != 0 ] && {
         echo "No such image or container: ${name}";
         exit 3;
     }
+    
+    if [ "$IPADDR" = "dhcp" ]
+    then
+        # Check for first available dhcp client
+        DHCP_CLIENT_LIST="udhcpc dhcpcd dhclient"
+        for CLIENT in $DHCP_CLIENT_LIST; do
+            which $CLIENT >/dev/null && {
+                DHCP_CLIENT=$CLIENT
+                break
+            }
+        done
+        [ -z $DHCP_CLIENT ] && {
+        	echo "You asked for DHCP; but no DHCP client could be found."
+        	exit 1
+        }
+    else
+        # Check if a subnet mask was provided.
+        echo $IPADDR | grep -q / || {
+    	echo "The IP address should include a netmask."
+    	echo "Maybe you meant $IPADDR/24 ?"
+    	exit 1
+        }
+        # Check if a gateway address was provided.
+        if echo $IPADDR | grep -q @
+        then
+            GATEWAY=$(echo $IPADDR | cut -d@ -f2)
+            IPADDR=$(echo $IPADDR | cut -d@ -f1)
+        else
+            GATEWAY=
+        fi
+    fi    
+    
     # create a connecter between  host and container 
-    # but first we should make sure bridge interface
-    # exsit;
-    if [ -d /sys/class/net/$ifname/bridge ];then
-        if [ ! -d /var/run/netns ];then
-            sudo mkdir -p /var/run/netns
-        fi
-        if [ ! -f /var/run/netns/$pid ];then
-            sudo ln -s /proc/$pid/ns/net /var/run/netns/$pid
-        fi
-    fi
+    [ ! -d /var/run/netns ] && mkdir -p /var/run/netns
+    [ -f /var/run/netns/$pid ] && rm -f /var/run/netns/$pid
+    ln -s /proc/$pid/ns/net /var/run/netns/$pid
 
     # set an ip for container
     # we need to create a veth pair first
     # lveth=>localhost veth
     # gveth=>guesthost veth
-    lveth="lveth${pid}"
-    gveth="gveth${pid}"
+    guest_ifname="macvtap${pid}"
+    c_ifname="${c_ifname:=eth0}"
+    # create macvtap device
+    ip link add link $ifname dev $guest_ifname mtu 1500 type macvlan mode bridge
+    #ip link add link $ifname dev $guest_ifname  mtu 1500 type macvtap mode bridge
+    # attache macvtap to container
+    ip link set $guest_ifname netns $pid
+    
+    # name macvtap device  to namespace as eth0
+    ip netns exec $pid ip link set $guest_ifname name eth0
   
-    ip link add  $lveth type veth peer name $gveth
-    # add veth to bridge
-    ip link set $lveth master $ifname
-    ip link set $lveth up
-    # attache guestveth to container
-    ip link set $gveth netns $pid
+    if [ "$IPADDR" = "dhcp" ]
+    then
+        if [ $DHCP_CLIENT = "dhclient"  ]
+        then
+            # kill dhclient after get ip address to prevent device be used after container close
+            ip netns exec $pid $DHCP_CLIENT -pf "/var/run/dhclient.$pid.pid" $c_ifname
+            kill "$(cat "/var/run/dhclient.$pid.pid")"
+            rm "/var/run/dhclient.$pid.pid"
+        fi
+         [ $DHCP_CLIENT = "dhcpcd"  ] && ip netns exec $pid $DHCP_CLIENT -q $c_ifname -h $name
+    else
+        ip netns exec $pid ip addr add $IPADDR dev $c_ifname
+        [ "$GATEWAY" ] && {
+    	ip netns exec $pid ip route delete default >/dev/null 2>&1 && true
+        }
+        ip netns exec $pid ip link set $c_ifname up
+        [ "$GATEWAY" ] && {
+    	    ip netns exec $pid ip route get $GATEWAY >/dev/null 2>&1 || \
+    		ip netns exec $pid ip route add $GATEWAY/32 dev $c_ifname
+    	    ip netns exec $pid ip route replace default via $GATEWAY
+        }
+    fi
+    # Give our ARP neighbors a nudge about the new interface
+    if which arping > /dev/null 2>&1
+    then
+        IPADDR=$(echo $IPADDR | cut -d/ -f1)
+        ip netns exec $pid arping -c 1 -A -I $c_ifname $IPADDR > /dev/null 2>&1 || true
+    else
+        echo "Warning: arping not found; interface may not be immediately reachable"
+    fi
   
-    #ip namespace set ip and gw to container interface
-    ip netns exec $pid ip link set $gveth name eth0
-    ip netns exec $pid ip addr add $ip dev eth0
-    ip netns exec $pid ip link set eth0 up
-    # cut ip/netmask to ip
-    ipaddr=$(echo  $ip| cut -d/ -f1)
-    # send arp broadcast in container interface
-    ip netns exec $pid arping -c 1 -A -I eth0 $ipaddr
-    # set default gateway  for container
-    ip netns exec $pid ip route replace default via $gw
-  
-    # Clean up dangling symlinks in /var/run/netns
-    find -L /var/run/netns -type l -delete
-    #[ -f /var/run/netns/$pid ] && rm -f /var/run/netns/$pid
+    # Remove $pid to avoid `ip netns` catch it.
+    [ -f /var/run/netns/$pid ] && rm -f /var/run/netns/$pid
+    exit 0
 }
 
-# http://stackoverflow.com/questions/402377/using-getopts-in-\
-#    bash-shell-script-to-get-long-and-short-command-line-options
-optspec=":h-:"
-while getopts "$optspec" optchar; do
-    case "${optchar}" in
-        -)
-            case "${OPTARG}" in
-                name=*)
-                    name=${OPTARG#*=}
-                    ;;
-                fanliweb=*)
-                    webdata=${OPTARG#*=}
-                   ;;
-                dockeropt=*)
-                    dockeropt=${OPTARG#*=}
-                    ;;
-                ip=*)
-                    ip=${OPTARG#*=}
-                    ;;
-                gw=*)
-                    gw=${OPTARG#*=}
-                    ;;
-                img=*)
-                    img=${OPTARG#*=}
-                    ;;
-                cmd=*)
-                    cmd=${OPTARG#*=}
-                    ;;
-                ifname=*)
-                    ifname=${OPTARG#*=}
-                    ;;
-                *)
-                    echo "Unknown option --${OPTARG}" >&2;;
-            esac;;
-        h)
-            echo "usage: $0 --name=web1 --dockeropt=docker options --img=docker images --cmd=run cmd [-fanliweb] [-ip=ip/mask] [-gw=ip]"  >&2
-            exit 2
-            ;;
-        *);;
-    esac
-done
+name=$1;ifname=$2;ipaddr=$3;fanli=$4
+[ "$name" ] || {
+    echo "usage:"
+    echo " ${0} <containername> <hostinterface> <ipaddr>/<subnet>[@default_gateway] [haproxy|webdata]"
+    echo " ${0} <containername> <hostinterface> dhcp [haproxy|webdata] "
+    echo " ${0} <containername>" 
+    exit 1
+} 
+# run specail docker container 
+[ "${fanli}" == "webdata" ] && {
+    [ "$ifname" ] &&  [ "$name" ] && [ "$ipaddr" ] && {
+        webdata="/data/rodata/webdata/"
+        samba="/opt/samba"
 
-# options parser
-if [ $dockeropt ];then
-    options=$dockeropt
-elif [  $webdata ];then
-    options=" --rm  -it"
-elif [ $ip ];then
-    options="--net=none -itd"
-else
-    options=" --rm --net=none -it"
-fi
-_c_fanli_conatainer $name "${options}" "${cmd}"  "${img}"
-
-if [ $ip ];then
-    _set_ip_forcontainer $name $ip $gw  $ifname
-fi
+	# base dir of storage container's data
+    	base="/data/containers"
+    	# container's  home
+    	# /data/containers/$name/
+    	hostdir="${base}/${name}"
+        volume="
+          -v ${hostdir}/weblogs:/data/weblogs/ \
+          -v ${hostdir}/webdata:/usr/local/webdata/ \
+          -v ${samba}/fanliweb:/opt/fanliweb \
+          -v ${samba}/tuangouweb:/opt/webdata \
+          -v /data/rodata/cfg_file/apache2conf:/usr/local/apache2/conf \
+        "
+        img="fanli:webdata"  
+        _c_conatainer $name '--net=none -itd'  ${img} "${volume}" "/bin/bash /usr/local/bin/bootstrap.sh"
+        _set_ip_forcontainer $ifname $name $ipaddr
+    }
+} || {
+     [ "$ifname" ] && [ "$ipaddr" ] && {
+         _c_conatainer $name '--net=none -itd'  'centos:centos7'
+         _set_ip_forcontainer $ifname $name $ipaddr
+         exit 0
+     }
+     _c_conatainer $name '--rm -it'  'centos:centos7'
+} 
