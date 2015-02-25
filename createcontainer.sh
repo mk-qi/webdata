@@ -9,13 +9,13 @@ set -e
 #  docker command warpper
 _c_conatainer(){
     host="$1";options="$2";
-    img="$3";cmd="$5";volume="$4"
+    img="$3";volume="$4";cmd="$5"
 
     # DEFAULT VALUE
-    host=${host:="${name}"}
     cmd="${cmd:="/bin/bash --login"}"
     img="${img:="centos:6"}"
     options=${options:="--rm -it"}
+ 
    # make sure $name container is not running; 
     docker inspect --format="{{ .State.Running }}"\
         $host 2> /dev/null && {
@@ -36,8 +36,13 @@ _c_conatainer(){
           "
     volume="${basevolume} ${volume}"
     # start up container with options
+	# -h is Conflict with --net=host
+	[ "${ipaddr}" == "host" ] && {
+    	docker run  --name=${host} ${volume} ${options} ${img} ${cmd}
+	}|| {
     docker run  --name=${host} -h ${host} --add-host="${host}:127.0.0.1" ${volume} ${options} ${img} ${cmd}
-
+		
+	}
 }
 # inspired by pipework
 # create macvlan interface 
@@ -143,17 +148,27 @@ _set_ip_forcontainer(){
     exit 0
 }
 
-name=$1;ifname=$2;ipaddr=$3;fanli=$4
+[ "$#" == "2" ] && {
+		name=$1;ipaddr=$2;
+}||{
+	[ "$#" == "3" ] &&{
+		name=$1;ipaddr=$2;fanli=$3
+	}
+}|| {
+	name=$1;ifname=$2;ipaddr=$3;fanli=$4
+}
+
 [ "$name" ] || {
     echo "usage:"
-    echo " ${0} <containername> <hostinterface> <ipaddr>/<subnet>[@default_gateway] [haproxy|webdata]"
-    echo " ${0} <containername> <hostinterface> dhcp [haproxy|webdata] "
-    echo " ${0} <containername>" 
+    echo " ${0} <containername>  <hostinterface> <ipaddr>/<subnet>[@default_gateway] [haproxy|webdata]"
+    echo " ${0} <containername>  <hostinterface> dhcp [haproxy|webdata]"
+    echo " ${0} <containername>  host [haproxy|webdata]"
+    echo " ${0} <containername> " 
     exit 1
 } 
 # run specail docker container 
 [ "${fanli}" == "webdata" ] && {
-    [ "$ifname" ] &&  [ "$name" ] && [ "$ipaddr" ] && {
+    [ "$ipaddr" ] && {
         webdata="/data/rodata/webdata/"
         samba="/opt/samba"
 
@@ -169,15 +184,42 @@ name=$1;ifname=$2;ipaddr=$3;fanli=$4
           -v ${samba}/tuangouweb:/opt/webdata \
           -v /data/rodata/cfg_file/apache2conf:/usr/local/apache2/conf \
         "
-        img="fanli:webdata"  
-        _c_conatainer $name '--net=none -itd'  ${img} "${volume}" "/bin/bash /usr/local/bin/bootstrap.sh"
-        _set_ip_forcontainer $ifname $name $ipaddr
-    }
-} || {
-     [ "$ifname" ] && [ "$ipaddr" ] && {
-         _c_conatainer $name '--net=none -itd'  'centos:centos7'
-         _set_ip_forcontainer $ifname $name $ipaddr
-         exit 0
-     }
-     _c_conatainer $name '--rm -it'  'centos:centos7'
+        img="fanli:webdata" 
+			
+	[ "${ipaddr}" == "host" ] && {
+	   _c_conatainer $name '--net=host -itd'  ${img} "${volume}" "/bin/bash /usr/local/bin/bootstrap.sh"
+	
+	}||{
+			[ "$ifname" ] && { 
+	   _c_conatainer $name '--net=none -itd'  ${img} "${volume}" "/bin/bash /usr/local/bin/bootstrap.sh"
+	   _set_ip_forcontainer $ifname $name $ipaddr
+	 }
+	}
 } 
+	
+} || {
+	[ "${fanli}" == "haproxy" ] && {
+	    [ "$ipaddr" ] && {
+	        volume=" -v /data/rodata/cfg_file/haproxy:/etc/haproxy"
+	        img="fanli:haproxy"
+		
+		[ "${ipaddr}" == "host" ] && {
+        	    _c_conatainer $name '--net=host -itd'  ${img} "${volume}" '/bin/bash /usr/local/bin/bootstrap.sh'
+		}||{
+			[ "$ifname" ] && { 
+		    _c_conatainer $name '--net=none -itd'  ${img} "${volume}" '/bin/bash /usr/local/bin/bootstrap.sh'
+		    _set_ip_forcontainer $ifname $name $ipaddr
+			} || exit 1;
+		}
+	     
+	    }
+	}
+}||{
+	[ "${ipaddr}" == "host" ] && {
+    	_c_conatainer $name '--net=host -itd'  'centos:centos7'
+	}||
+	{
+		_c_conatainer $name '--rm -it'  'centos:centos7'
+	}
+		
+}
