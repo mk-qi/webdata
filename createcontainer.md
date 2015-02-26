@@ -39,7 +39,7 @@
 
 dockerfile
 
-    # Originally written for Fedora-Dockerfiles by
+       #  Originally written for Fedora-Dockerfiles by
 	#   "Maciej Lasyk" <maciek@lasyk.info>
 
 	FROM fanli:centos6-base
@@ -122,7 +122,7 @@ docker默认的这种网络网络运作方式,不需要人为的干预,一方面
   1. 应用的配置文件同样存放在宿主机上,每个容器共享
   2. 代码文件: 以容器名在宿主机上创一个文件夹,然后每个容器挂载,远程共享的文件也是通过挂载.
 请看如下代码
-    
+	
 	# Originally written for Fedora-Dockerfiles by
 	# base dir of storage container's data
 	base="/data/containers"
