@@ -172,7 +172,7 @@ _set_ip_forcontainer(){
         webdata="/data/rodata/webdata/"
         samba="/opt/samba"
 
-	# base dir of storage container's data
+	    # base dir of storage container's data
     	base="/data/containers"
     	# container's  home
     	# /data/containers/$name/
