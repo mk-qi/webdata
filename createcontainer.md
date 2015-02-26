@@ -18,7 +18,7 @@
 	  
 2.镜像构建基于Dockerfile
   
-  Dockerfile的作用类似于shell 脚本,让特定的过程按按特定的方式走.简单说确保每一次stage过程.都一样.
+  Dockerfile的作用类似于shell 脚本,让特定的过程按按特定的方式走(workflow).简单说确保每一次stage过程.都一样.
   目录结构
     
 	 ├── binary
