@@ -62,7 +62,8 @@ dockerfile
 2.网络问题:
 
  docker 支持的网络连接方式有四种:
- 详见: https://docs.docker.com/articles/networking/  我们这里不详述
+ 详见: https://docs.docker.com/articles/networking/  我们这里只说一下
+ 
  docker默认使用的网络接口方式:  docker默认使用veth接口对,一端放进容器做为一个网络接口,一端放在宿主机上,这样就实现了容器和宿主机的互通,关于veth,请以Linux 虚拟网络设备进行搜索,要创建一个veth接口对用,可以用如下命令就可
  	
 	ip link add dev vethhost type veth peer name vethguest
@@ -104,7 +105,8 @@ docker默认的这种网络网络运作方式,不需要人为的干预,一方面
    http://blog.oddbit.com/2014/08/11/four-ways-to-connect-a-docker/ 
    
    如果你想自己玩:  可以通过vagrant + vbox 快速构建一个环境  
-   http://www.infoq.com/cn/news/2014/10/docker-network-project
+ 
+    其它开源项目: http://www.infoq.com/cn/news/2014/10/docker-network-project
 
 
 <a name="build"/>
@@ -115,10 +117,10 @@ docker默认的这种网络网络运作方式,不需要人为的干预,一方面
   容器构建:
     前面说了我们目前采用网络方式是二层的macvlan,静态指定Ip,这里用起是很爽,但是也有一个目前没有找到解决方案的问题,容器不能重启,一旦重启,容器里的接口会消失,
 	所以基于这个限制,我们构建容器一个基本的原则是容器里不要存放变动很频烦的文件,还要尽量做到应用的配置文件变动,应用会自动刷新.基于上述限制,所以容器的数据部份:
-	采用了下面的这些方法
+采用了下面的这些方法
 	
-	1. 应用的配置文件同样存放在宿主机上,每个容器共享
-	3. 代码文件,以容器名在宿主机上创一个文件夹,然后每个容器挂载,远程共享的文件,同样容器挂载.
+  1. 应用的配置文件同样存放在宿主机上,每个容器共享
+  2. 代码文件,以容器名在宿主机上创一个文件夹,然后每个容器挂载,远程共享的文件,同样容器挂载.
 	
 	请看如下代码
     
@@ -135,7 +137,7 @@ docker默认的这种网络网络运作方式,不需要人为的干预,一方面
       -v /data/rodata/cfg_file/apache2conf:/usr/local/apache2/conf \
     "
   网络部份:
-  centos7 默认的docker版本已经完全抛弃了lxc,转而采用自己的libcontainer,所以一些lxc的一些配置已经不能用,而macvlan,docker默认没有做上应的支持,所以我们在容器启动的时候选择--net=none,然后在容器起来之后,再通过ip netns指定相应的ip.如何实现这里请参考pipwork,另关于macvlan,macvtap,请google之,当然macvlan这里有一个限制,就是容器无法和宿主机直接通信,解决方法也很简单,在宿主机上配一个macvlan接口就可以,但是我们容器不需要和宿主机通信,所以这些忽略.具体的构建代码请参考如下:
+  centos7 默认的docker版本已经完全抛弃了lxc,转而使用自己的libcontainer,所以一些lxc的一些配置已经不能用,而macvlan,docker默认没有做上应的支持,所以我们在容器启动的时候选择--net=none,然后在容器起来之后,再通过ip netns指定相应的ip.如何实现这里请参考pipwork,另关于macvlan,macvtap,请google之,当然macvlan这里有一个限制,就是容器无法和宿主机直接通信,解决方法也很简单,在宿主机上配一个macvlan接口就可以,但是我们容器不需要和宿主机通信,所以这些忽略.具体的构建代码请参考如下:
   
     # create macvtap device
     ip link add link $ifname dev $guest_ifname mtu 1500 type macvlan mode bridge
