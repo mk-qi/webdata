@@ -120,23 +120,25 @@ docker默认的这种网络网络运作方式,不需要人为的干预,一方面
 采用了下面的这些方法
 	
   1. 应用的配置文件同样存放在宿主机上,每个容器共享
-  2. 代码文件,以容器名在宿主机上创一个文件夹,然后每个容器挂载,远程共享的文件,同样容器挂载.
-	
-	请看如下代码
+  2. 代码文件: 以容器名在宿主机上创一个文件夹,然后每个容器挂载,远程共享的文件也是通过挂载.
+请看如下代码
     
+	# Originally written for Fedora-Dockerfiles by
 	# base dir of storage container's data
 	base="/data/containers"
 	# container's  home
 	# /data/containers/$name/
 	hostdir="${base}/${name}"
+  
     volume="
-      -v ${hostdir}/weblogs:/data/weblogs/ \
-      -v ${hostdir}/webdata:/usr/local/webdata/ \
-      -v ${samba}/fanliweb:/opt/fanliweb \
-      -v ${samba}/tuangouweb:/opt/webdata \
-      -v /data/rodata/cfg_file/apache2conf:/usr/local/apache2/conf \
-    "
-  网络部份:
+        -v ${hostdir}/weblogs:/data/weblogs/ \
+       	-v ${hostdir}/webdata:/usr/local/webdata/ \
+       	-v ${samba}/fanliweb:/opt/fanliweb \
+       	-v ${samba}/tuangouweb:/opt/webdata \
+       	-v /data/rodata/cfg_file/apache2conf:/usr/local/apache2/conf \
+     "
+   
+网络部份:
   centos7 默认的docker版本已经完全抛弃了lxc,转而使用自己的libcontainer,所以一些lxc的一些配置已经不能用,而macvlan,docker默认没有做上应的支持,所以我们在容器启动的时候选择--net=none,然后在容器起来之后,再通过ip netns指定相应的ip.如何实现这里请参考pipwork,另关于macvlan,macvtap,请google之,当然macvlan这里有一个限制,就是容器无法和宿主机直接通信,解决方法也很简单,在宿主机上配一个macvlan接口就可以,但是我们容器不需要和宿主机通信,所以这些忽略.具体的构建代码请参考如下:
   
     # create macvtap device
@@ -160,7 +162,6 @@ docker默认的这种网络网络运作方式,不需要人为的干预,一方面
 	   2. 同是重启应用节点瞬间失效
 	      我们因为有多台容器服务节点,所以失效一台没关系,当然这个问题原本的解决方案是这样的
 		  配置文件在宿主机上放置多份,不同的容器挂载不同的目录,所以先改一个目录,然后配置文件以目录为单位分批次改.
-		  
 	
 	     
   5.日志管理
