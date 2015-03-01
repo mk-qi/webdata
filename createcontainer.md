@@ -5,7 +5,7 @@
     
    1.趋势:
 	  
-容器化技术有Lxc,openvz等,但是为什么要用dockerk呢, 虽然容器技术实现已久, 比如linux 上的openvz等的实现,sun 上的zone等,但是真正火起来确实是因docker的流行.
+容器化技术有Lxc,openvz等,但是为什么要用docker呢,虽然容器技术实现已久, 比如linux上的openvz等的实现,sun上的zone等,但是真正火起来确实是因docker的流行.
 	  业界各类大佬都针展开了针对docker的进行了相应的产口实现,比如google,redhat,国内的百度和华为等都已经大面积的使用docker了,基于docker 的各类开源软件,社区也很活跃.
 	  所以如果选择容器化技术的话 docker 是不二选择.
  
