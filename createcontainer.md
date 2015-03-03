@@ -29,6 +29,9 @@
 #####网络连接示意图
 ![Alt text](imgs/docker.with.macvlan.png "docker with macvlan")
 
+#####数据流向示意图
+![Alt text](imgs/docker-network-traffice.png "docker-network-traffice")
+
 ---
 ###此稿重点讲述
    * [1.base镜像构建](#base)
