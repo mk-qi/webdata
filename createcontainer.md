@@ -1,19 +1,16 @@
 # 在centos7上构建基于docker的应用
 ---
-###这篇文稿主要以fanli网的web服务器的构建来说明如何把容器技术应用到当前的生产架构中
- ####### 1.为什么要用docker
+###这篇文稿主要以fanli网web服务器的构建来说明如何把docker 应用到当前应用的架构中
+ 
+#### 1.为什么要用docker
     
  1.技术趋势:
 	  
-容器化技术有Lxc,openvz等,但是为什么要用docker呢?虽然容器技术实现已久, 比如linux上的openvz等的实现,sun上的zone等,但是真正火起来确实是因docker的流行.
-
-业界各类大佬都针展开了针对docker的进行了相应的产口实现,比如google,redhat,国内的百度和华为等都已经大面积的使用docker了,基于docker 的各类开源软件,社区也很活跃.
-
-所以如果选择容器化技术的话 docker 是不二选择.
+docker创始公司成立专门的docker公司来发展docker技术及相关产品: 虽然容器技术实现已久,比如linux下的Lxc,openvz,sun 上面的zone等, 但是真正走进大众的视野则是因docker的流行.且业界各类巨头针展开了针对docker应用的实现或是周边的辅助产品,比如google,redhat,都有相应的开源软件,国内的百度和华为等都已经大面积的使用docker了,基于docker的各类开源软件,社区活跃,所以如果选择容器化技术的话 docker是不二选择.
  
  2.技术优势
-	 如下图: 容器从性能上天生的技术优势.
-	 
+
+如下图: 容器从性能上有先天的技术优势.	 
 	  
 ![Alt text](http://zdnet3.cbsistatic.com/hub/i/r/2014/10/02/1f130129-49e2-11e4-b6a0-d4ae52e95e57/resize/770x578/3f83f67acfa33fe05865373b2b4b71dd/docker-vm-container.png)
 	 
@@ -70,7 +67,7 @@
 
 dockerfile
 
-       #  Originally written for Fedora-Dockerfiles by
+    #  Originally written for Fedora-Dockerfiles by
 	#   "Maciej Lasyk" <maciek@lasyk.info>
 
 	FROM fanli:centos6-base
@@ -154,19 +151,19 @@ docker默认的这种网络网络运作方式,不需要人为的干预,一方面
   2. 代码文件: 以容器名在宿主机上创一个文件夹,然后每个容器挂载,远程共享的文件也是通过挂载.
 请看如下代码
 
-		# base dir of storage container's data
-		base="/data/containers"
-		# container's  home
-		# /data/containers/$name/
-		hostdir="${base}/${name}"
+	  # base dir of storage container's data
+	  base="/data/containers"
+	  # container's  home
+	  # /data/containers/$name/
+	  hostdir="${base}/${name}"
   
-    	volume="
+      volume="
         -v ${hostdir}/weblogs:/data/weblogs/ \
        	-v ${hostdir}/webdata:/usr/local/webdata/ \
        	-v ${samba}/fanliweb:/opt/fanliweb \
        	-v ${samba}/tuangouweb:/opt/webdata \
        	-v /data/rodata/cfg_file/apache2conf:/usr/local/apache2/conf \
-        "
+      "
    
 
 网络部份:
