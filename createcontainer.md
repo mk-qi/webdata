@@ -101,9 +101,7 @@ dockerfile
 2.网络问题:
 
  docker 支持的网络连接方式有四种:
- 详见: https://docs.docker.com/articles/networking/  我们这里只说一下
- 
- docker默认使用的网络接口方式:  docker默认使用veth接口对,一端放进容器做为一个网络接口,一端放在宿主机上,这样就实现了容器和宿主机的互通,关于veth,请以Linux 虚拟网络设备进行搜索,要创建一个veth接口对,用如下命令就可完成
+ 详见: https://docs.docker.com/articles/networking/  我们这里只说一下docker默认使用的网络接口方式:  docker默认使用veth接口对,一端放进容器做为一个网络接口,一端放在宿主机上,这样就实现了容器和宿主机的互通,关于veth,请以Linux 虚拟网络设备进行搜索,要创建一个veth接口对,用如下命令就可完成
  	
 	ip link add dev vethhost type veth peer name vethguest
 	ip addr add 10.0.0.1/24 dev vethhost
