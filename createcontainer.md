@@ -2,15 +2,29 @@
 ---
 ###这篇文稿主要以fanli网web服务器的构建来说明如何把docker 应用到当前应用的架构中
  
-#### 1.为什么要用docker
-    
- 1.技术趋势:
-	  
-docker创始公司成立专门的docker公司来发展docker技术及相关产品: 虽然容器技术实现已久,比如linux下的Lxc,openvz,sun 上面的zone等, 但是真正走进大众的视野则是因docker的流行.且业界各类巨头针展开了针对docker应用的实现或是周边的辅助产品,比如google,redhat,都有相应的开源软件,国内的百度和华为等都已经大面积的使用docker了,基于docker的各类开源软件,社区活跃,所以如果选择容器化技术的话 docker是不二选择.
+####此稿重点讲述
  
- 2.技术优势
+   * [1.为什么要用docker](#why)
+   * [2.base镜像构建](#base)
+   * [2.网络问题](#network)
+   * [3.容器构建及文件共享](#build)
+   * [4.应用配置变更后的自动刷新](#app)
+   * [5.日志管理](#log)
+ 
+#### 1.为什么要用docker
+#####1.发展趋势:
+	  
+docker发展:
 
-如下图: 容器从性能上有先天的技术优势.	 
+&#8195;&#8195;docker创始公司成立专门的docker公司来发展docker技术及相关产品
+
+流行趋势:  
+
+&#8195;&#8195;虽然容器技术实现已久,比如linux下的Lxc,openvz,sun 上面的zone等, 
+但是真正走进大众的视野则是因docker的流行.且业界各类巨头针展开了针对docker应用的实现或是周边的辅助产品,比如google,redhat,都有相应的开源软件,国内的百度和华为等都已经大面积的使用docker了,基于docker的各类开源软件,社区活跃,所以如果选择容器化技术的话 docker是不二选择.
+ 
+#####2.技术优势
+&#8195;&#8195;如下图: 容器从性能上有先天的技术优势.	 
 	  
 ![Alt text](http://zdnet3.cbsistatic.com/hub/i/r/2014/10/02/1f130129-49e2-11e4-b6a0-d4ae52e95e57/resize/770x578/3f83f67acfa33fe05865373b2b4b71dd/docker-vm-container.png)
 	 
@@ -30,12 +44,7 @@ docker创始公司成立专门的docker公司来发展docker技术及相关产�
 ![Alt text](imgs/docker-network-traffice.png "docker-network-traffice")
 
 ---
-###此稿重点讲述
-   * [1.base镜像构建](#base)
-   * [2.网络问题](#network)
-   * [3.容器构建及文件共享](#build)
-   * 4.应用配置变更后的自动刷新
-   * 5.日志管理
+
 
 <a name="base"/>
   1.base镜像构建
