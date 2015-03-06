@@ -40,7 +40,7 @@ _c_conatainer(){
 	[ "${ipaddr}" == "host" ] && {
     	docker run  --name=${host} ${volume} ${options} ${img} ${cmd}
 	}|| {
-    docker run  --name=${host} -h ${host} --add-host="${host}:127.0.0.1" ${volume} ${options} ${img} ${cmd}
+    docker run  -e "TZ=Asia/Shanghai"--name=${host} -h ${host} --add-host="${host}:127.0.0.1" ${volume} ${options} ${img} ${cmd}
 		
 	}
 }
