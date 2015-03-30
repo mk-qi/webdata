@@ -1,9 +1,10 @@
 # 在centos7上构建基于docker的应用
 ---
-###这篇文稿主要以fanli网web服务器的构建来说明如何把docker 应用到当前系统架构中
- 
+###这篇文稿主要以fanli网web服务器的构建来说明如何把docker应用到当前系统架构中
+##### &nbsp;&nbsp;&nbsp;&nbsp;ppt的主题: 讲一下我们为什么要尝试docker,及docker初体验
 ####此稿重点讲述
-   * [1.why docker](#why)
+   * [1.为什么要尝试docker](#why)
+   * [2.docker及容器虚拟化和传统虚拟化的区别](#dockervsvm)
    * [2.基本网络架构](#netarch)
    * [3.base镜像构建](#base)
    * [2.网络问题](#network)
@@ -12,9 +13,35 @@
    * [5.日志管理](#log)
 
 <a name="why"/>
-#### 一.why docker
-  虽然容器化技术发展了很长时间,但是真正引起很多大厂商的关注,使用者的关注确是因为docker, docker 目前的发展基本上就是容器技术的代名词,所以问为什么用docker 等于问为什么用容器化技术.
+#### 一.为什么要尝试docker
+  目前是为了解决生产环境以虚拟机为单位的phpweb 服务集群横向扩展成本过高的问题.将来会逐渐影响我们内网的开发环境,和生产的应用部署流程和架构.
   
+<a name="dockervsvm"/> 
+#### 二.docker及容器虚拟化和传统虚拟化的区别
+
+Docker 是一套管理容器虚拟化的工具套件,或者是一套基于容器虚拟化技术实现的容器虚拟化解决方案.主要解决app的构建和,转移和运行(build  ship  run)  basics-docker-containers-hypervisors-coreos    Understanding Docker
+
+Container(容器)虚拟化：
+基于OS的系统级虚拟化，需内核支持，其原理是将系统资源按照类型和需求分割给多个对象且相互隔离对像使用,比如 linux Container虚拟化是基于cgroup 和namespace 
+
+(Hypervisor) VM虚拟化是基于硬件层面的虚拟化技术, 有三种：全虚拟化、半虚拟化. 
+硬件虚拟化,全虚拟化由Hypervisor截获并翻译所有虚拟机特权指令；半虚拟化通过修改虚拟机内核，将部分特权指令替换成与Hypervisor通信;硬件虚拟化借助服务器硬件虚拟化功能，不需要截获虚拟机特权指令，虚拟机也不需要修改内核（比如Intel VT和AMD-V）
+
+
+Hypervisors virtualize at the hardware level,Containers virtualize at the operating system level
+
+Hypervisors abstract the operating system from hardware, containers abstract the application from the operation system.
+
+Hypervisors consumes storage space for each instance,Containers use a single storage space plus smaller deltas for each layer and thus are much more efficient.
+
+Hypervisors boot according to the OS typically 20 seconds, depending on storage speed
+Containers can boot and be application-ready in less than 500ms and creates new designs opportunities for rapid scaling. 
+
+Hypervisors have lower quality APIs that have limited cloud orchestration value,Containers have built-in and high value APIs for cloud orchestration. 
+
+http://etherealmind.com/basics-docker-containers-hypervisors-coreos/
+
+
   如下图:  容器技术相比传统的虚拟化技术有先天的优势.
 	  
 ![Alt text](http://zdnet3.cbsistatic.com/hub/i/r/2014/10/02/1f130129-49e2-11e4-b6a0-d4ae52e95e57/resize/770x578/3f83f67acfa33fe05865373b2b4b71dd/docker-vm-container.png)
