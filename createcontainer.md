@@ -9,7 +9,6 @@
    
    
    * [2.基本网络架构](#netarch)
-   
    * [3.base镜像构建](#base)
    * [2.网络问题](#network)
    * [3.容器构建及文件共享](#build)
@@ -23,7 +22,15 @@
 <a name="dockervsvm"/> 
 #### 二.docker及容器虚拟化和传统虚拟化的区别
 
-Docker 是一套管理容器虚拟化的工具套件,或者是一套基于容器虚拟化技术实现的容器虚拟化解决方案.主要解决app的构建和,转移和运行(build  ship  run)  basics-docker-containers-hypervisors-coreos    Understanding Docker
+Docker 是一套管理容器虚拟化的工具套件,或者是一套基于容器虚拟化技术实现的容器虚拟化解决方案.主要解决app的构建和,发布,和运行(build->ship-> run)  
+
+更多更专业的解释: 请参考: 
+
+* [1. basics-docker-containers-hypervisors-coreos](http://etherealmind.com/basics-docker-containers-hypervisors-coreos/  
+)
+* [2. Understanding Docker](https://docs.docker.com/introduction/understanding-docker/#how-does-a-docker-image-work 
+)
+
 
 Container(容器)虚拟化：
 基于OS的系统级虚拟化，需内核支持，其原理是将系统资源按照类型和需求分割给多个对象且相互隔离对像使用,比如 linux Container虚拟化是基于cgroup 和namespace 
@@ -31,6 +38,11 @@ Container(容器)虚拟化：
 (Hypervisor) VM虚拟化是基于硬件层面的虚拟化技术, 有三种：全虚拟化、半虚拟化. 
 硬件虚拟化,全虚拟化由Hypervisor截获并翻译所有虚拟机特权指令；半虚拟化通过修改虚拟机内核，将部分特权指令替换成与Hypervisor通信;硬件虚拟化借助服务器硬件虚拟化功能，不需要截获虚拟机特权指令，虚拟机也不需要修改内核（比如Intel VT和AMD-V）
 
+摘录一段来自 
+[basics-docker-containers-hypervisors-coreos](http://etherealmind.com/basics-docker-containers-hypervisors-coreos/  
+被大家公认的比较好的关于区别的说明
+
+```
 
 Hypervisors virtualize at the hardware level,Containers virtualize at the operating system level
 
@@ -43,7 +55,8 @@ Containers can boot and be application-ready in less than 500ms and creates new 
 
 Hypervisors have lower quality APIs that have limited cloud orchestration value,Containers have built-in and high value APIs for cloud orchestration. 
 
-http://etherealmind.com/basics-docker-containers-hypervisors-coreos/
+```
+
 
 	  
 ![Alt text](imgs/dockervsvm.png)
