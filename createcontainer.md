@@ -28,35 +28,38 @@ Docker 是一套管理容器虚拟化的工具套件,或者是一套基于容器
 
 更多更专业的解释: 请参考: 
 
-* [1. basics-docker-containers-hypervisors-coreos](http://etherealmind.com/basics-docker-containers-hypervisors-coreos/  
-)
-* [2. Understanding Docker](https://docs.docker.com/introduction/understanding-docker/#how-does-a-docker-image-work 
-)
+* [1. basics-docker-containers-hypervisors-coreos](http://etherealmind.com/basics-docker-containers-hypervisors-coreos/)
+* [2. Understanding Docker](https://docs.docker.com/introduction/understanding-docker/#how-does-a-docker-image-work)
 
 
 Container(容器)虚拟化：
 基于OS的系统级虚拟化，需内核支持，其原理是将系统资源按照类型和需求分割给多个对象且相互隔离对像使用,比如 linux Container虚拟化是基于cgroup 和namespace 
 
-(Hypervisor) VM虚拟化是基于硬件层面的虚拟化技术, 有三种：全虚拟化、半虚拟化. 
-硬件虚拟化,全虚拟化由Hypervisor截获并翻译所有虚拟机特权指令；半虚拟化通过修改虚拟机内核，将部分特权指令替换成与Hypervisor通信;硬件虚拟化借助服务器硬件虚拟化功能，不需要截获虚拟机特权指令，虚拟机也不需要修改内核（比如Intel VT和AMD-V）
+(Hypervisor) VM虚拟化是基于硬件层面的虚拟化技术, 有三种：全虚拟化、半虚拟化.硬件虚拟化
+* 全虚拟化由Hypervisor截获并翻译所有虚拟机特权指令；
+* 半虚拟化通过修改虚拟机内核，将部分特权指令替换成与Hypervisor通信;
+* 硬件虚拟化借助服务器硬件虚拟化功能，不需要截获虚拟机特权指令，虚拟机也不需要修改内核（比如Intel VT和AMD-V）
 
-摘录一段来自 [basics-docker-containers-hypervisors-coreos](http://etherealmind.com/basics-docker-containers-hypervisors-coreos/)  (此文件基本上是公认的写得比较好的basics docker vs hypervisors 的文章了)
+摘录一段来自 [basics-docker-containers-hypervisors-coreos](http://etherealmind.com/basics-docker-containers-hypervisors-coreos/)  (此文基本上是公认的写得比较好的basics docker vs hypervisors 的文章了)
 
 ```
 
-Hypervisors virtualize at the hardware level,Containers virtualize at the operating system level
+Hypervisors virtualize at the hardware level,
+Containers virtualize at the operating system level
 
-Hypervisors abstract the operating system from hardware, containers abstract the application from the operation system.
+Hypervisors abstract the operating system from hardware, 
+containers abstract the application from the operation system.
 
-Hypervisors consumes storage space for each instance,Containers use a single storage space plus smaller deltas for each layer and thus are much more efficient.
+Hypervisors consumes storage space for each instance,
+Containers use a single storage space plus smaller deltas for each layer and thus are much more efficient.
 
 Hypervisors boot according to the OS typically 20 seconds, depending on storage speed
 Containers can boot and be application-ready in less than 500ms and creates new designs opportunities for rapid scaling. 
 
-Hypervisors have lower quality APIs that have limited cloud orchestration value,Containers have built-in and high value APIs for cloud orchestration. 
+Hypervisors have lower quality APIs that have limited cloud orchestration value,
+Containers have built-in and high value APIs for cloud orchestration. 
 
 ```
-
 	  
 ![Alt text](imgs/dockervsvm.png)
 	 
