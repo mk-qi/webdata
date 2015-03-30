@@ -1,8 +1,10 @@
 # 在centos7上构建基于docker的应用
 ---
-###这篇文稿主要以fanli网web服务器的构建来说明如何把docker应用到当前系统架构中
-##### &nbsp;&nbsp;&nbsp;&nbsp;ppt的主题: 讲一下我们为什么要尝试docker,及docker初体验
-####此稿重点讲述
+###这篇文稿主要分两部份,一部份以ppt为原形,相对原ppt,把一些讲的东西细化进这个文稿里,
+另一部份则以fanli网web服务器的构建来说明我们如何把docker应用到当前系统架构中.
+
+
+####此稿重讲述
    * [1.为什么要尝试docker](#why)
    * [2.docker及容器虚拟化和传统虚拟化的区别](#dockervsvm)
    * [3.安装体验](#install)
@@ -22,7 +24,7 @@
 <a name="dockervsvm"/> 
 #### 二.docker及容器虚拟化和传统虚拟化的区别
 
-Docker 是一套管理容器虚拟化的工具套件,或者是一套基于容器虚拟化技术实现的容器虚拟化解决方案.主要解决app的构建和,发布,和运行(build->ship-> run)  
+Docker 是一套管理容器虚拟化的工具套件,或者是一套基于容器虚拟化技术实现的容器虚拟化解决方案.主要解决app的构建和-发布-和运行(build->ship-> run)  
 
 更多更专业的解释: 请参考: 
 
@@ -38,9 +40,7 @@ Container(容器)虚拟化：
 (Hypervisor) VM虚拟化是基于硬件层面的虚拟化技术, 有三种：全虚拟化、半虚拟化. 
 硬件虚拟化,全虚拟化由Hypervisor截获并翻译所有虚拟机特权指令；半虚拟化通过修改虚拟机内核，将部分特权指令替换成与Hypervisor通信;硬件虚拟化借助服务器硬件虚拟化功能，不需要截获虚拟机特权指令，虚拟机也不需要修改内核（比如Intel VT和AMD-V）
 
-摘录一段来自 
-[basics-docker-containers-hypervisors-coreos](http://etherealmind.com/basics-docker-containers-hypervisors-coreos/  
-被大家公认的比较好的关于区别的说明
+摘录一段来自 [basics-docker-containers-hypervisors-coreos](http://etherealmind.com/basics-docker-containers-hypervisors-coreos/)  (此文件基本上是公认的写得比较好的basics docker vs hypervisors 的文章了)
 
 ```
 
@@ -57,22 +57,17 @@ Hypervisors have lower quality APIs that have limited cloud orchestration value,
 
 ```
 
-
 	  
 ![Alt text](imgs/dockervsvm.png)
 	 
 
 
-说说图上没有的不好的方面:
+关于docker的其它需要了解的:
 
-   1.docker  不是谁的替代者,相比vm 他们有各自己的目的
-  
-   2.当然针对docker本身来说,它还有很多方面不成熟,比如docker的网络目前仍倾向于单机模式,所以默认情况下他的网络不能很好的容合进当前的网络架构中,尤其针对docker的多主机网络互通,目前仍没有一个得到管方很认可的方案,将来可能会和openvswith 方面做些整合工作,但是不确定.
-   
-   所以如果你业务场景比较复杂,想顺利的融合docker,这个仍需要开发运维做很多工作
-   
-   另一方面相对传统的虚拟机,容器技术从安全的角度上来说也要弱于虚拟机,当然安全这个话题本身就是相对的,所以这里不说, 针地以上这些特性, 我们的web服务器包括phpweb javaweb 等相对来说没有复杂的网络场景,且在网络上面的基本上没有太多的困扰,所以我们优先针对phpweb服务器进行容器化操作.
-
+* 1.docker不是谁的替代者,相比vm他们有各自己的优劣.
+* 2.当然针对docker本身来说,它还有很多方面不成熟,比如docker的网络目前仍倾向于单机模式,所以默认情况下他的网络不能很好的容合进当前的网络架构中,尤其针对docker的多主机网络互通,目前仍没有一个得到管方很认可的方案,将来可能会和openvswith 方面做些整合工作,所以如果你业务场景比较复杂,想顺利的融合docker,这个仍需要开发运维做很多工作
+* 3.安全问题 相对传统的虚拟机,容器技术从安全的角度上来说也要弱于虚拟机,一是公用内核,另一个是缺少一层中间代理,当然安全这个话题本身就是相对的,所以这里不说
+    
 <a name="install">
 ####三. 安装体验
 基于官方建义,linux 内核要在3.8以上, 且 3.10.x 建义 ,所以os我们就只接用centos7 了,但是centos6.5 以上也是可以玩的,只是会缺少一些特性而已,所以具体
@@ -144,14 +139,12 @@ Docker 的成熟的网络解决方案仍处在发展期,就目前来说仍然没
 * 容器和宿主机以外的网络通信
 * 宿主机以外的网络和容器通信 
 
-docker 网络   https://docs.docker.com/articles/networking/
-
-
+[docker 网络](https://docs.docker.com/articles/networking/)
 
 
 <a name="netarch">	
 ####2. 基本架构
-  针对web服务器的来说, 完全可以用默认的网络,但是对于我们来phpweb来说主动流出的流量可能大于主动流进的流量,所以为了谨慎也为了更好的融合进当前的系统架构,所以我们还是需要做一些调整,基本架构请看数据流赂示意图
+   我们的web服务器包括phpweb和javaweb 等相对来说没有复杂的网络场景,但是对于我们来phpweb来说主动流出的流量可能大于主动流进的流量,所以为了谨慎也为了更好的融合进当前的系统架构,所以我们还是需要做一些调整,基本架构请看数据流赂示意图
 
 #####数据流向示意图(系统架构图)
 ![Alt text](imgs/docker-network-traffice.png "docker-network-traffice")
