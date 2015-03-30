@@ -94,7 +94,7 @@ http://etherealmind.com/basics-docker-containers-hypervisors-coreos/
 * [`docker commit`](http://docs.docker.io/reference/commandline/cli/#commit) creates image from a container.
 * [`docker rmi`](http://docs.docker.io/reference/commandline/cli/#rmi) removes an image.
 
-
+----
 * [`docker run`](http://docs.docker.io/reference/commandline/cli/#run) creates and starts a container in one operation.
 * [`docker stop`](http://docs.docker.io/reference/commandline/cli/#stop) stops it.
 * [`docker start`](http://docs.docker.io/reference/commandline/cli/#start) will start it again.
@@ -103,12 +103,38 @@ http://etherealmind.com/basics-docker-containers-hypervisors-coreos/
 * [`docker kill`](http://docs.docker.io/reference/commandline/cli/#kill) sends a SIGKILL to a container.
 * [`docker attach`](http://docs.docker.io/reference/commandline/cli/#attach) will connect to a running container.
 
+----
 * [`docker ps`](http://docs.docker.io/reference/commandline/cli/#ps) shows running containers.
 * [`docker inspect`](http://docs.docker.io/reference/commandline/cli/#inspect) looks at all the info on a container (including IP address).
 * [`docker logs`](http://docs.docker.io/reference/commandline/cli/#logs) gets logs from container.
 * [`docker top`](http://docs.docker.io/reference/commandline/cli/#top) shows running processes in container.
 
 `docker ps -a` shows running and stopped containers.
+
+---
+
+#### 2. Dockerfile
+Docker can build images automatically by reading the instructions from a Dockerfile. A Dockerfile is a text document that contains all the commands you would normally execute manually in order to build a Docker image. 
+
+https://docs.docker.com/reference/builder/ 
+
+####3.logs,data,volumes,network
+容器化虚拟机的基本系统可以是只读的,多次复用的,所以app产生的数据一般都是通过卷共享的方式存在于基本系统之外的.这些数据包括Logs,私有数据及共享数据的存储,主要是通过volumes mount来实现.
+
+
+#####4. docker 网络及我们的实现
+
+Docker 的成熟的网络解决方案仍处在发展期,就目前来说仍然没有最优化的使用方法和最佳实践,所以这个问题得分解着去了解,主要是下面几个问题,主些问题目前都有解决方法,如如果展开来讲又会是一个很大的话题,所以这里不展开太多.
+
+* 容器和宿主机的通信
+* 容器和容器间的通信
+* 容器和宿主机以外的网络通信
+* 宿主机以外的网络和容器通信 
+
+docker 网络   https://docs.docker.com/articles/networking/
+
+
+
 
 <a name="netarch">	
 ####2. 基本架构
