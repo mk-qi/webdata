@@ -73,14 +73,19 @@ Containers have built-in and high value APIs for cloud orchestration.
     
 <a name="install">
 ####三. 安装体验
-基于官方建义,linux 内核要在3.8以上, 且 3.10.x 建义 ,所以os我们就只接用centos7 了,但是centos6.5 以上也是可以玩的,只是会缺少一些特性而已,所以具体
-1.安装
+基于官方建义,之前是建义linux 内核要在3.8以上, 但最新的文档版本已比[建义](http://docs.docker.com/installation/binaries/#check-kernel-dependencies) 内核要大于3.10.x  ,所以os我们就只接用centos7 了,但是centos6.5 以上也是可以玩的,只是会缺少一些特性而已.
+所以具体的操作如下:
+
+* 1.安装
+   
    yum install docker -y
 
-2.启动: 
+* 2.启动: 
+   
    service docker start ;
 
-3.确认启动:
+* 3.确认启动:
+   
    docker info
 
 更多操作系级及安装细节  https://docs.docker.com/installation/ 
