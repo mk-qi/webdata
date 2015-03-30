@@ -5,7 +5,11 @@
 ####此稿重点讲述
    * [1.为什么要尝试docker](#why)
    * [2.docker及容器虚拟化和传统虚拟化的区别](#dockervsvm)
+   * [3.安装体验](#install)
+   
+   
    * [2.基本网络架构](#netarch)
+   
    * [3.base镜像构建](#base)
    * [2.网络问题](#network)
    * [3.容器构建及文件共享](#build)
@@ -41,27 +45,35 @@ Hypervisors have lower quality APIs that have limited cloud orchestration value,
 
 http://etherealmind.com/basics-docker-containers-hypervisors-coreos/
 
-
-  如下图:  容器技术相比传统的虚拟化技术有先天的优势.
 	  
-![Alt text](http://zdnet3.cbsistatic.com/hub/i/r/2014/10/02/1f130129-49e2-11e4-b6a0-d4ae52e95e57/resize/770x578/3f83f67acfa33fe05865373b2b4b71dd/docker-vm-container.png)
+![Alt text](imgs/dockervsvm.png)
 	 
-如上图 
-
-  * 1.容器属于操作系统级别的虚拟化,而传统的虚拟化技术则是针对硬件层面虚拟化.
-  * 2.容器虚拟化实际是就是操作系统里的一个或是多个资源隔离的进程,而传统的虚拟化则是硬件模拟等
-  * 3.容器进程可以以秒为时间起动,但虚拟机的起动速度则要看存储介质的快慢.
-  * 4.管理虚拟机上的应用和管理物理机上的应用的成本一样,但是管理容器里面的应用则是和管理进成的成本差不多..
-  * 5.docker 更是有完整的api及dockerfile 等确保工作流,所以部署和管理起来不需要像传统虚拟机那样需要复制很多文件.操作很多配置.所以部署成本相对虚拟机会非常低.
-  * 6.相比性能容器技术的虚拟化基本等于硬件的性能,但是传统的虚拟化根根作业的不同至少有%5以上的整体性能损耗费. 
 
 
 说说图上没有的不好的方面:
-   1.当然针对docker本身来说,它还有很多方面不成熟,比如docker的网络目前仍倾向于单机模式,所以默认情况下他的网络不能很好的容合进当前的网络架构中,尤其针对docker的多主机网络互通,目前仍没有一个得到管方很认可的方案,将来可能会和openvswith 方面做些整合工作,但是不确定.
+
+   1.docker  不是谁的替代者,相比vm 他们有各自己的目的
+  
+   2.当然针对docker本身来说,它还有很多方面不成熟,比如docker的网络目前仍倾向于单机模式,所以默认情况下他的网络不能很好的容合进当前的网络架构中,尤其针对docker的多主机网络互通,目前仍没有一个得到管方很认可的方案,将来可能会和openvswith 方面做些整合工作,但是不确定.
    
    所以如果你业务场景比较复杂,想顺利的融合docker,这个仍需要开发运维做很多工作
    
    另一方面相对传统的虚拟机,容器技术从安全的角度上来说也要弱于虚拟机,当然安全这个话题本身就是相对的,所以这里不说, 针地以上这些特性, 我们的web服务器包括phpweb javaweb 等相对来说没有复杂的网络场景,且在网络上面的基本上没有太多的困扰,所以我们优先针对phpweb服务器进行容器化操作.
+
+<a name="install">
+####三. 安装体验
+基于官方建义,linux 内核要在3.8以上, 且 3.10.x 建义 ,所以os我们就只接用centos7 了,但是centos6.5 以上也是可以玩的,只是会缺少一些特性而已,所以具体
+1.安装
+   yum install docker -y
+
+2.启动: 
+   service docker start ;
+
+3.确认启动:
+   docker info
+
+更多操作系级及安装细节  https://docs.docker.com/installation/ 
+
 
 
 
