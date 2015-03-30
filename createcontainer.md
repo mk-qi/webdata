@@ -132,7 +132,7 @@ https://docs.docker.com/reference/builder/
 
 #####4. docker 网络及我们的实现
 
-Docker 的成熟的网络解决方案仍处在发展期,就目前来说仍然没有最优化的使用方法和最佳实践,所以这个问题得分解着去了解,主要是下面几个问题,主些问题目前都有解决方法,如如果展开来讲又会是一个很大的话题,所以这里不展开太多.
+Docker 的成熟的网络解决方案仍处在发展期,就目前来说仍然没有最优化的使用方法和最佳实践,所以这个问题得分解着去了解,主要是下面几个问题,这些问题目前都有解决方法,如果展开来讲又会是一个很大的话题,所以这里不展开太多.
 
 * 容器和宿主机的通信
 * 容器和容器间的通信
@@ -141,19 +141,21 @@ Docker 的成熟的网络解决方案仍处在发展期,就目前来说仍然没
 
 [docker 网络](https://docs.docker.com/articles/networking/)
 
+----
+
+ 我们的web服务器包括phpweb和javaweb等相对来说没有很复杂的网络场景,但是phpweb的主动流出的流量可能大于主动流进的流量,所以为了谨慎也为了更好的融合进当前的系统架构,所以我们采用macvlan bridge + staticip 的方式.
+ 
+ macvlan的桥接网络性能除了passthou以外应该是最接近物理网卡的性能了,不过网上也有人评测说用openswith的桥接性能会更优一些,我们没有去测,目前我们为了降低docker使用和融合的的复杂性,暂时这个处于了解阶段.
+ 
+ 所以基本网络架构及连接图如下:
+ ![Alt text](imgs/docker.with.macvlan.png "docker with macvlan")
 
 <a name="netarch">	
-####2. 基本架构
-   我们的web服务器包括phpweb和javaweb 等相对来说没有复杂的网络场景,但是对于我们来phpweb来说主动流出的流量可能大于主动流进的流量,所以为了谨慎也为了更好的融合进当前的系统架构,所以我们还是需要做一些调整,基本架构请看数据流赂示意图
-
 #####数据流向示意图(系统架构图)
 ![Alt text](imgs/docker-network-traffice.png "docker-network-traffice")
 
 ---
 
-#####网络连接示意图
-针对我们当前的架构,我们采用macvlan bridge + staticip 的方式,如下图,macvlan的桥接网络性能除了passthou以外应该是最接近物理网卡的性能了,不过网上也有人评测说用openswith的桥接性能会更优一些,为了简化,这个我们可能会考虑测试下.
-![Alt text](imgs/docker.with.macvlan.png "docker with macvlan")
 
 <a name="base"/>
 ####二. 基本镜像构建
