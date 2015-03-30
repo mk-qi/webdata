@@ -74,8 +74,41 @@ http://etherealmind.com/basics-docker-containers-hypervisors-coreos/
 
 更多操作系级及安装细节  https://docs.docker.com/installation/ 
 
+##### 1. 基本元素
+
+* 镜像: 一个只读的系统模版,基本上就是一个关了机的虚拟机
+* 容器: 基于镜像起动的一个”虚拟机”
+* 仓库: 存放和索引镜像
+
+2.基本命令,基本命令分为三大块
+
+* 镜像管理 ,列出已有镜像,创建和删除镜像等
+* 容器运行 创建启动关闭等
+* 信息显示  列出在运行的实例,实例的具体信息等
+
+3.命令详细列表
+
+* [`docker images`](http://docs.docker.io/reference/commandline/cli/#images) shows all images.
+* [`docker import`](http://docs.docker.io/reference/commandline/cli/#import) creates an image from a tarball.
+* [`docker build`](http://docs.docker.io/reference/commandline/cli/#build) creates image from Dockerfile.
+* [`docker commit`](http://docs.docker.io/reference/commandline/cli/#commit) creates image from a container.
+* [`docker rmi`](http://docs.docker.io/reference/commandline/cli/#rmi) removes an image.
 
 
+* [`docker run`](http://docs.docker.io/reference/commandline/cli/#run) creates and starts a container in one operation.
+* [`docker stop`](http://docs.docker.io/reference/commandline/cli/#stop) stops it.
+* [`docker start`](http://docs.docker.io/reference/commandline/cli/#start) will start it again.
+* [`docker restart`](http://docs.docker.io/reference/commandline/cli/#restart) restarts a container.
+* [`docker rm`](http://docs.docker.io/reference/commandline/cli/#rm) deletes a container.
+* [`docker kill`](http://docs.docker.io/reference/commandline/cli/#kill) sends a SIGKILL to a container.
+* [`docker attach`](http://docs.docker.io/reference/commandline/cli/#attach) will connect to a running container.
+
+* [`docker ps`](http://docs.docker.io/reference/commandline/cli/#ps) shows running containers.
+* [`docker inspect`](http://docs.docker.io/reference/commandline/cli/#inspect) looks at all the info on a container (including IP address).
+* [`docker logs`](http://docs.docker.io/reference/commandline/cli/#logs) gets logs from container.
+* [`docker top`](http://docs.docker.io/reference/commandline/cli/#top) shows running processes in container.
+
+`docker ps -a` shows running and stopped containers.
 
 <a name="netarch">	
 ####2. 基本架构
